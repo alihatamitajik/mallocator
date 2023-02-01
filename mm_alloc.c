@@ -26,6 +26,15 @@ struct b_list {
     s_block_ptr last;
 } b_list = {NULL, NULL};
 
+int are_limits_set = 0;
+size_t minAllocation = (size_t) NULL;
+size_t maxAllocation = (size_t) NULL;
+
+void define_min_max_allocation(size_t min, size_t max){
+    are_limits_set = 1;
+    minAllocation = min;
+    maxAllocation = max;
+}
 
 /**
  * @brief moves header of the b to the new_start and add diff to its size
@@ -199,8 +208,9 @@ s_block_ptr get_first_fit (size_t size) {
 
 void* mm_malloc(size_t size)
 {  
-    /* returns NULL if the size is zero */
-    if (size == 0) {
+    /* returns NULL if the size is zero or the size does not match the min and max constraints */
+
+    if (size <= 0 || (are_limits_set && (size < minAllocation || size > maxAllocation))) {
         return NULL;
     }
 

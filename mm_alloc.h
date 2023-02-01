@@ -31,6 +31,9 @@ extern "C" {
  * @return address of the begining of the allocated memory. it will
  *         return NULL if the size is 0 or on error.
  */
+
+void define_min_max_allocation(size_t min, size_t max);
+
 void* mm_malloc(size_t size);
 
 /**
