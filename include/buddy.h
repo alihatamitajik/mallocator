@@ -48,6 +48,13 @@ void* bud_realloc(void* ptr, size_t size);
 /**
  * @brief frees pre-allocated memory
  * 
+ * This functions marks the pointer free and tries to coalesce as much as
+ * possible with childs in the same depth, same parent and rightness of the
+ * next block be 1 and current zero (In other words we test the block to
+ * be the left child and coalesce it with the right child it both are free).
+ * If the coalesce process was successful, then it will try for another time
+ * until it cannot anymore.
+ * 
  * @param ptr pointer to a pre-allocated memory
  */
 void bud_free(void* ptr);

@@ -95,31 +95,72 @@ void split (bud_meta b)
 
 
 /**
+ * @brief combines two block together
+ * 
+ * It should remove the right header from the list, update the depth and 
+ * rightness of it. 
+ * 
+ * @param left 
+ * @param right 
+ */
+void fuse(bud_meta left, bud_meta right)
+{
+    left->next = right->next;
+    left->size = left->size * 2;
+    left->depth -= 1;
+    left->rightness >>= 1;
+}
+
+
+/**
  * @brief Try to coalesce is_free blocks as much as possible
  * 
- * This function use an iterative behavior (i.e. it coalesce blocks if it was
- * successful it tries to coalesce blocks another time until it cant anymore).
+ * This function will check if a fusion is possible:
+ *  - if it's left (right) child it will check if right (left) child is free and
+ *    if it was, a merge will happen between these two. if succeeded, it will
+ *    call the function recursively to merge with the other one.
  * 
- * This way we make sure that all possible combination of coalesce happened,
- * although this method is compute intensive and better implementations was
- * possible.
- * 
- * @return int 1 if a coalesce occurred and 0 if not. 
+ * @param bm newly freed block.
  */
-int coalesce()
+void coalesce(bud_meta bm)
 {
-    return 0;
+    if (bm->rightness & 1 && bm->is_free) // if it's right child 
+    {
+        bud_meta left = bm->prev;
+        if (left != NULL && left->is_free && left->depth == bm->depth)
+        {
+            fuse(left, bm);
+            coalesce(left);
+        }
+    } else {
+        bud_meta right = bm->next;
+        if (right != NULL && right->is_free && right->depth == bm->depth)
+        {
+            fuse(bm, right);
+            coalesce(bm);
+        }
+    }
 }
 
 /**
  * @brief Get the block object corresponding to ptr
  * 
+ * iterates over headers and return the block if it has matching prt
  * 
  * @param p start of allocated memory
  * @return s_block_ptr 
  */
-bud_meta get_block (void *p)
+bud_meta get_block (void *ptr)
 {
+    bud_meta block = head;
+    while (block)
+    {
+        if (block->ptr == ptr) 
+            return block;
+        block = block->next;
+    }
+
+    // if nothing found
     return NULL;
 }
 
@@ -226,7 +267,8 @@ bud_meta get_best_fit(size_t size)
             {
                 return block;
             }
-            else if (block->size > size && (best == NULL || best->size > block->size))
+            else if (block->size > size 
+                     && (best == NULL || best->size > block->size))
             {
                 best = block;
             }
@@ -313,7 +355,12 @@ void* bud_realloc(void* ptr, size_t size)
 
 void bud_free(void* ptr)
 {
-
+    bud_meta block  = get_block(ptr);
+    if (block != NULL)
+    {
+        block->is_free = 1;
+        coalesce(block);
+    }
 }
 
 void bud_show_stats()
