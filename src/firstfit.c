@@ -2,12 +2,12 @@
 
 
 /*
- * mm_alloc.c
+ * firstfit.c
  *
  * proper documentation is added for each function (mostly in the header file).
  */
 
-#include "mm_alloc.h"
+#include "firstfit.h"
 
 #include <unistd.h>
 #include <string.h>

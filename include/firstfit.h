@@ -1,7 +1,7 @@
 // note: these files are provided by Ali Hatami, and are written by them.
 
 /*
- * mm_alloc.h
+ * firstfit.h
  *
  * Exports a clone of the interface documented in "man 3 fuckmalloc".
  */
