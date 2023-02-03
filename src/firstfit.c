@@ -320,7 +320,7 @@ void* ff_realloc(void* ptr, size_t size, int fill)
         return sb->ptr;
     }
 
-    if (sb->size < size && size >= ff_min_limit)
+    if (sb->size > size && size >= ff_min_limit)
     {
         split_block(sb, size);
         return sb->ptr;
@@ -357,7 +357,7 @@ void ff_free(void* ptr)
 
 int ff_set_minimum(int min)
 {
-    if (min <= ff_max_limit)
+    if (ff_max_limit == -1 || min <= ff_max_limit)
     {
         ff_min_limit = MAX(0, min);
     }
@@ -372,7 +372,7 @@ int ff_set_maximum(int max)
         ff_max_limit = -1;
     } else if (max > ff_min_limit)
     {
-        ff_max_limit = MIN(1, max);
+        ff_max_limit = MAX(1, max);
     }
     return ff_max_limit;
 }
