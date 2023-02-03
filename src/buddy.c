@@ -379,6 +379,12 @@ void* bud_realloc(void* ptr, size_t size, int fill)
         return bm->ptr;
     }
 
+    if (bm->size < request && size > min_limit)
+    {
+        shrink_to_size(bm, request);
+        return bm->ptr;
+    }
+
     // We need a bigger space
     void* new_mem = bud_malloc(size, fill);
     if (new_mem == NULL)

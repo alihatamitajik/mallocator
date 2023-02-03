@@ -315,6 +315,18 @@ void* ff_realloc(void* ptr, size_t size, int fill)
         return NULL;
     }
 
+    if (sb->size == size) 
+    {
+        return sb->ptr;
+    }
+
+    if (sb->size < size && size >= ff_min_limit)
+    {
+        split_block(sb, size);
+        return sb->ptr;
+    }
+    
+
     void *new_mem = ff_malloc(size, fill);
     if (new_mem == NULL) {
         return NULL;
