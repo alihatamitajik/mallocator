@@ -20,11 +20,18 @@
     _a < _b ? _a : _b;       \
 })
 
+#define MAX(a,b)             \
+({                           \
+    __typeof__ (a) _a = (a); \
+    __typeof__ (b) _b = (b); \
+    _a > _b ? _a : _b;       \
+})
+
 /** Initial Min limit (no limit) */
-long min_limit = 0;
+long ff_min_limit = 0;
 
 /** initial Max limit (no limit) */
-long max_limit = -1;
+long ff_max_limit = -1;
 
 /* this struct is created to manage block pointers */
 struct b_list {
@@ -123,7 +130,7 @@ void split_block (s_block_ptr b, size_t s) {
  * @param late  the block which will be fused to the other, it must be after
  *              the prior block
  */
-void fuse (s_block_ptr prior, s_block_ptr late) {
+void ff_fuse (s_block_ptr prior, s_block_ptr late) {
     prior->next = late->next;
     if (late->next != NULL) {
         late->next->prev = prior;
@@ -138,7 +145,7 @@ void fuse (s_block_ptr prior, s_block_ptr late) {
  * @brief Try to fuse is_free blocks before and after of b together
  * 
  * it will fuse is_free adjacent blocks together. It only checks prev and next
- * blocks because if it be used after each mm_is_free then there only can't be
+ * blocks because if it be used after each ff_is_free then there only can't be
  * other sequence of is_free blocks (they where fused together when one of them
  * was is_freed)!
  * 
@@ -152,12 +159,12 @@ s_block_ptr fusion (s_block_ptr b) {
 
     if (b->prev != NULL && b->prev->is_free) {
         s_block_ptr prev = b->prev;
-        fuse (prev, b);
+        ff_fuse (prev, b);
         b = prev;
     }
 
     if (b->next != NULL && b->next->is_free) {
-        fuse (b, b->next);
+        ff_fuse (b, b->next);
     }
 
     if (b->next == NULL) {
@@ -177,7 +184,7 @@ s_block_ptr fusion (s_block_ptr b) {
  * @param p start of allocated memory
  * @return s_block_ptr 
  */
-s_block_ptr get_block (void *p) {
+s_block_ptr ff_get_block (void *p) {
     if (p == NULL) {
         return NULL;
     }
@@ -206,7 +213,7 @@ s_block_ptr get_block (void *p) {
  * @param s size to be allocated
  * @return NULL on failure and a pointer to the newly allocated(expanded) block
  */
-s_block_ptr extend_heap (s_block_ptr last , size_t s) {
+s_block_ptr ff_extend_heap (s_block_ptr last , size_t s) {
     void *mem;
 
     if (last != NULL && last->is_free) {
@@ -264,15 +271,15 @@ s_block_ptr get_first_fit (size_t size) {
     }
 
     /* if reached here no enough space was found  we should extend the heap */
-    sb = extend_heap (b_list.last, size);
+    sb = ff_extend_heap (b_list.last, size);
 
     return sb;
 }
 
-void* mm_malloc(size_t size, int fill)
+void* ff_malloc(size_t size, int fill)
 {  
     /* returns NULL if the size is zero or the size does not match the min and max constraints */
-    if (size < min_limit || (max_limit != -1 && size > max_limit))
+    if (size < ff_min_limit || (ff_max_limit != -1 && size > ff_max_limit))
     {
         return NULL;
     }
@@ -292,23 +299,23 @@ void* mm_malloc(size_t size, int fill)
 }
 
 
-void* mm_realloc(void* ptr, size_t size, int fill)
+void* ff_realloc(void* ptr, size_t size, int fill)
 {
     if (size == 0) {
-        mm_free (ptr);
+        ff_free (ptr);
         return NULL;
     }
 
     if (ptr == NULL) {
-        return mm_malloc(size, fill);
+        return ff_malloc(size, fill);
     }
 
-    s_block_ptr sb = get_block (ptr);
+    s_block_ptr sb = ff_get_block (ptr);
     if (sb == NULL || sb->is_free) {
         return NULL;
     }
 
-    void *new_mem = mm_malloc(size, fill);
+    void *new_mem = ff_malloc(size, fill);
     if (new_mem == NULL) {
         return NULL;
     }
@@ -321,9 +328,9 @@ void* mm_realloc(void* ptr, size_t size, int fill)
 }
 
 
-void mm_free(void* ptr)
+void ff_free(void* ptr)
 {
-    s_block_ptr sb = get_block (ptr);
+    s_block_ptr sb = ff_get_block (ptr);
 
     if (sb == NULL) {
         /* if the pointer in not to a valid block */
@@ -338,11 +345,11 @@ void mm_free(void* ptr)
 
 int ff_set_minimum(int min)
 {
-    if (min <= max_limit)
+    if (min <= ff_max_limit)
     {
-        min_limit = MAX(0, min);
+        ff_min_limit = MAX(0, min);
     }
-    return min_limit;
+    return ff_min_limit;
 }
 
 
@@ -350,10 +357,10 @@ int ff_set_maximum(int max)
 {
     if (max == -1)
     {
-        max_limit = -1;
-    } else if (max > min_limit)
+        ff_max_limit = -1;
+    } else if (max > ff_min_limit)
     {
-        max_limit = MIN(1, max);
+        ff_max_limit = MIN(1, max);
     }
-    return max_limit;
+    return ff_max_limit;
 }
