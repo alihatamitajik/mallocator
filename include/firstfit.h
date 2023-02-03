@@ -8,8 +8,8 @@
 
 #pragma once
 
-#ifndef _malloc_H_
-#define _malloc_H_
+#ifndef _firstfit_H_
+#define _firstfit_H_
 
  /* Define the block size since the sizeof will be wrong */
 #define BLOCK_SIZE 40
