@@ -210,7 +210,7 @@ void* mm_malloc(size_t size)
 {  
     /* returns NULL if the size is zero or the size does not match the min and max constraints */
 
-    if (size <= 0 || (are_limits_set && (size < minAllocation || size > maxAllocation))) {
+    if (size <= 0) {
         return NULL;
     }
 
