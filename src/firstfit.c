@@ -206,7 +206,7 @@ s_block_ptr get_first_fit (size_t size) {
     return sb;
 }
 
-void* mm_malloc(size_t size)
+void* mm_malloc(size_t size, int fill)
 {  
     /* returns NULL if the size is zero or the size does not match the min and max constraints */
 
@@ -219,13 +219,13 @@ void* mm_malloc(size_t size)
         return NULL;
     } else {
         sb->is_free = 0;
-        memset(sb->ptr, 0, size);
+        memset(sb->ptr, fill, size);
         return sb->ptr;
     }
 }
 
 
-void* mm_realloc(void* ptr, size_t size)
+void* mm_realloc(void* ptr, size_t size, int fill)
 {
     if (size == 0) {
         mm_free (ptr);
@@ -233,7 +233,7 @@ void* mm_realloc(void* ptr, size_t size)
     }
 
     if (ptr == NULL) {
-        return mm_malloc(size);
+        return mm_malloc(size, fill);
     }
 
     s_block_ptr sb = get_block (ptr);
@@ -241,7 +241,7 @@ void* mm_realloc(void* ptr, size_t size)
         return NULL;
     }
 
-    void *new_mem = mm_malloc(size);
+    void *new_mem = mm_malloc(size, fill);
     if (new_mem == NULL) {
         return NULL;
     }

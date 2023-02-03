@@ -28,13 +28,14 @@ extern "C" {
  * failure it is!
  * 
  * @param size the size of allocation
+ * @param fill fills allocated size with fill value
  * @return address of the begining of the allocated memory. it will
  *         return NULL if the size is 0 or on error.
  */
 
 void define_min_max_allocation(size_t min, size_t max);
 
-void* mm_malloc(size_t size);
+void* mm_malloc(size_t size, int fill);
 
 /**
  * @brief reallocate the pointer with new memory size
@@ -48,9 +49,10 @@ void* mm_malloc(size_t size);
  * 
  * @param ptr previously allocated memory pointer
  * @param size new size that is needed
+ * @param fill fills allocated size with fill value
  * @return address of the new memory. NULL in case of failure
  */
-void* mm_realloc(void* ptr, size_t size);
+void* mm_realloc(void* ptr, size_t size, int fill);
 
 /**
  * @brief frees pre-allocated memory

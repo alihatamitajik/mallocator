@@ -28,22 +28,39 @@ extern "C" {
  *    splitting.
  *  - if can't allocate new storage, return NULL.
  * 
+ * After allocation it will set all bytes to `fill` value. Note that fill is
+ * passed as integer but it will use unsigned char conversion of it.
+ * 
  *  NOTE: it will return NULL on impossible requests (irrational or not enough
  *        storage or not in bound)
  * 
  * @param size size to be allocated
+ * @param fill fills allocated size with fill value
  * @return void* 
  */
-void* bud_malloc(size_t size);
+void* bud_malloc(size_t size, int fill);
 
 /**
  * @brief reallocate the pointer with new memory size
  * 
+ * this function is combination of these three jobs:
+ *  - malloc
+ *  - memcpy
+ *  - free
+ * 
+ * NOTE:
+ *  - if size is not positive, then it is equivalent of free
+ *  - if ptr is NULL, then it is equivalent of malloc
+ *  - if ptr was not allocated before it will return NULL
+ *  - if request size (next_pow2) is same as previous one, it will return ptr
+ *  - if allocation of size failed, NULL is returned
+ * 
  * @param ptr previously allocated memory pointer
  * @param size new size that is needed
+ * @param fill fills allocated size with fill value
  * @return address of the new memory. NULL in case of failure
  */
-void* bud_realloc(void* ptr, size_t size);
+void* bud_realloc(void* ptr, size_t size, int fill);
 
 /**
  * @brief frees pre-allocated memory

@@ -330,19 +330,21 @@ bud_meta alloc_block(size_t size)
     }
 }
 
-void* bud_malloc(size_t size)
+void* bud_malloc(size_t size, int fill)
 {
     // if it violates the boundaries
     if (size < min_limit || (max_limit != -1 && size > max_limit))
     {
         return NULL;
     }
-    bud_meta bbp = alloc_block(next_pow2(BLOCK_SIZE + size));
+    size_t request = next_pow2(BLOCK_SIZE + size);
+    bud_meta bbp = alloc_block(request);
     if (bbp == NULL) 
     {
         return NULL;
     } else {
         bbp->is_free = 0;
+        memset(bbp->ptr, fill, request - BLOCK_SIZE);
         return bbp->ptr;
     }
 }
@@ -355,7 +357,7 @@ void free_block(bud_meta bm)
 }
 
 
-void* bud_realloc(void* ptr, size_t size)
+void* bud_realloc(void* ptr, size_t size, int fill)
 {
     if(size <= 0) {
         bud_free(ptr);
@@ -363,7 +365,7 @@ void* bud_realloc(void* ptr, size_t size)
     }
     
     if (ptr == NULL) {
-        return bud_malloc(size);
+        return bud_malloc(size, fill);
     }
 
     bud_meta bm = get_block(ptr);
@@ -378,7 +380,7 @@ void* bud_realloc(void* ptr, size_t size)
     }
 
     // We need a bigger space
-    void* new_mem = bud_malloc(size);
+    void* new_mem = bud_malloc(size, fill);
     if (new_mem == NULL)
     {
         return NULL;
