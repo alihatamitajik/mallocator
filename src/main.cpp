@@ -11,8 +11,8 @@
 
 int main(int argc, char const *argv[])
 {
-    void * a = bud_malloc(5, 0), *b = bud_malloc(20, 0);
-    bud_free(b);
-    a = bud_realloc(a, 20, 0);
-    printf("%d\n", a == b);
+    void *a = bud_malloc(20, 0);
+    bud_realloc(a, 5, 0);
+    // should be in the space of the previous
+    void *b = bud_malloc(5, 0);
 }

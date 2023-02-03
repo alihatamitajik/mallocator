@@ -337,14 +337,14 @@ void* bud_malloc(size_t size, int fill)
     {
         return NULL;
     }
-    size_t request = next_pow2(BLOCK_SIZE + size);
+    size_t request = next_pow2(BUD_BLOCK_SIZE + size);
     bud_meta bbp = alloc_block(request);
     if (bbp == NULL) 
     {
         return NULL;
     } else {
         bbp->is_free = 0;
-        memset(bbp->ptr, fill, request - BLOCK_SIZE);
+        memset(bbp->ptr, fill, request - BUD_BLOCK_SIZE);
         return bbp->ptr;
     }
 }
@@ -373,13 +373,13 @@ void* bud_realloc(void* ptr, size_t size, int fill)
         return NULL;
     }
 
-    size_t request = next_pow2(BLOCK_SIZE + size);
+    size_t request = next_pow2(BUD_BLOCK_SIZE + size);
 
     if (bm->size == request) {
         return bm->ptr;
     }
 
-    if (bm->size < request && size > min_limit)
+    if (bm->size > request && size > min_limit)
     {
         shrink_to_size(bm, request);
         return bm->ptr;
@@ -414,7 +414,7 @@ void bud_show_stats()
 
 int bud_set_minimum(int min)
 {
-    if (min <= max_limit)
+    if (max_limit == -1 || min <= max_limit)
     {
         min_limit = MAX(0, min);
     }
@@ -429,7 +429,7 @@ int bud_set_maximum(int max)
         max_limit = -1;
     } else if (max > min_limit)
     {
-        max_limit = MIN(1, max);
+        max_limit = MAX(1, max);
     }
     return max_limit;
 }
