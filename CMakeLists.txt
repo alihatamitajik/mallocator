@@ -1,5 +1,12 @@
-// This software is released under the MIT License.
-// https://opensource.org/licenses/MIT
-
 cmake_minimum_required(VERSION 3.20)
-project(MMALLOC 0.1.0)
+project(malloc)
+
+set(CMAKE_BUILD_TYPE Debug)
+
+include_directories("./include")
+set(SOURCES
+"./src/buddy.c"
+"./include/buddy.h"
+)
+
+add_executable(testapp "./src/main.cpp" ${SOURCES})

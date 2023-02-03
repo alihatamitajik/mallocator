@@ -77,7 +77,7 @@ void split (bud_meta b)
  */
 int coalesce()
 {
-    return NULL;
+    return 0;
 }
 
 /**
@@ -89,7 +89,7 @@ int coalesce()
  */
 bud_meta get_block (void *p)
 {
-
+    return NULL;
 }
 
 /**
@@ -111,7 +111,7 @@ bud_meta get_block (void *p)
 bud_meta extend_heap ()
 {
     void* mem;
-    mem = sbrk(sum_allocated);
+    mem = (void *) sbrk(sum_allocated);
     if (mem == (void *) -1)
     {
         return NULL;
@@ -140,6 +140,8 @@ bud_meta extend_heap ()
     header->prev = prev;
     prev->next = header;
 
+    sum_allocated <<= 1;
+
     return header;
 }
 
@@ -152,7 +154,7 @@ bud_meta extend_heap ()
 bud_meta init_heap(size_t size)
 {
     void* mem;
-    mem = sbrk(size);
+    mem = (void *) sbrk(size);
     
     if (mem == (void*) -1)
     {
@@ -274,7 +276,7 @@ void* bud_malloc(size_t size)
 
 void* bud_realloc(void* ptr, size_t size)
 {
-
+    return NULL;
 }
 
 
@@ -308,4 +310,5 @@ int bud_set_maximum(int max)
     {
         max_limit = MIN(1, max);
     }
+    return max_limit;
 }

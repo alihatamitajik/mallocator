@@ -15,6 +15,7 @@ extern "C" {
 
 #include <stdlib.h>
 #include <stdint.h>
+#include <unistd.h>
 
 /**
  * @brief allocates size bytes in the memory
