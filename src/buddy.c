@@ -2,6 +2,7 @@
 // https://opensource.org/licenses/MIT
 
 #include "buddy.h"
+#include <string.h>
 
 #define MIN(a,b)             \
 ({                           \
@@ -347,9 +348,44 @@ void* bud_malloc(size_t size)
 }
 
 
+void free_block(bud_meta bm)
+{
+    bm->is_free = 1;
+    coalesce(bm);
+}
+
+
 void* bud_realloc(void* ptr, size_t size)
 {
-    return NULL;
+    if(size <= 0) {
+        bud_free(ptr);
+        return NULL;
+    }
+    
+    if (ptr == NULL) {
+        return bud_malloc(size);
+    }
+
+    bud_meta bm = get_block(ptr);
+    if (bm == NULL || bm->is_free) {
+        return NULL;
+    }
+
+    size_t request = next_pow2(BLOCK_SIZE + size);
+
+    if (bm->size == request) {
+        return bm->ptr;
+    }
+
+    // We need a bigger space
+    void* new_mem = bud_malloc(size);
+    if (new_mem == NULL)
+    {
+        return NULL;
+    }
+    memcpy(new_mem, bm->ptr, MIN(size, bm->size));
+    free_block(bm);
+    return new_mem;
 }
 
 
@@ -358,8 +394,7 @@ void bud_free(void* ptr)
     bud_meta block  = get_block(ptr);
     if (block != NULL)
     {
-        block->is_free = 1;
-        coalesce(block);
+        free_block(block);
     }
 }
 
