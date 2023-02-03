@@ -54,12 +54,43 @@ static __attribute__((noinline)) unsigned next_pow2(unsigned x)
 /**
  * @brief Splits the block into half
  * 
+ * When we are splitting, it will take the block into two headers and adjust
+ * the depth and the Rightness of it.
+ * 
+ * NOTE: we know that the size is a power of two. We also know that split will
+ * not happen for sizes less than 128 bytes (because the minimum request will
+ * be 64).
+ * 
  * 
  * @param b the block that will be splitted - should be a valid block
  */
 void split (bud_meta b)
 {
+    size_t half_size = b->size / 2;
+    if (b->size <= 64)
+        return;
 
+    // find header
+    bud_meta next_half = (bud_meta)((void *) b + half_size);
+
+    // adjust sizes
+    next_half->size = b->size = half_size;
+
+    // adjust depth and rightness
+    next_half->depth = (b->depth += 1); 
+    next_half->rightness = next_half->rightness << 1 + 1;
+    b->rightness <<= 1;
+    
+    // adjust the links
+    next_half->prev = b;
+    next_half->next = b->next;
+    b->next = next_half;
+
+    // adjust the ptr
+    next_half->ptr = &next_half->data;
+
+    // adjust freeness
+    next_half->is_free = 1;
 }
 
 
