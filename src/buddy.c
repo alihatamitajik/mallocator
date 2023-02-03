@@ -21,10 +21,10 @@
 bud_meta head = NULL;
 
 /** Initial Min limit (no limit) */
-size_t min_limit = 0;
+long min_limit = 0;
 
 /** initial Max limit (no limit) */
-size_t max_limit = -1;
+long max_limit = -1;
 
 size_t sum_allocated = 0;
 
