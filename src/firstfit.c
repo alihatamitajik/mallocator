@@ -39,16 +39,6 @@ struct b_list {
     s_block_ptr last;
 } b_list = {NULL, NULL};
 
-int are_limits_set = 0;
-size_t minAllocation = (size_t) NULL;
-size_t maxAllocation = (size_t) NULL;
-
-void define_min_max_allocation(size_t min, size_t max){
-    are_limits_set = 1;
-    minAllocation = min;
-    maxAllocation = max;
-}
-
 /**
  * @brief moves header of the b to the new_start and add diff to its size
  * 
@@ -377,14 +367,6 @@ int ff_set_maximum(int max)
     return ff_max_limit;
 }
 
-void ff_show_stats(){
-    unsigned allocated = ff_show_stats_by_type(0);
-    unsigned not_allocated = ff_show_stats_by_type(1);
-    printf("total allocated: %d\ntotal free: %d\n", allocated, not_allocated);
-    void* sbrk_pointer = sbrk(0);
-    printf("sbrk pointer and allocated + free difference: %u\n", sbrk_pointer - (allocated + not_allocated));
-}
-
 int ff_show_stats_by_type(int is_free){
 
     s_block_ptr first = (s_block_ptr) b_list.first;
@@ -403,7 +385,7 @@ int ff_show_stats_by_type(int is_free){
             break;
         }
         if (temp->is_free == is_free){
-            printf("start_address: %10u, end_address: %10u, size: %10u\n", temp->ptr, temp->ptr + temp->size, temp->size);
+            printf("start_address: %p, end_address: %p, size: %10lu\n", temp->ptr, temp->ptr + temp->size, temp->size);
             total_size += temp->size;
         }
         if (temp->next == NULL){
@@ -412,4 +394,12 @@ int ff_show_stats_by_type(int is_free){
         temp = (s_block_ptr)(temp->next);
     }
     return total_size;
+}
+
+void ff_show_stats(){
+    unsigned allocated = ff_show_stats_by_type(0);
+    unsigned not_allocated = ff_show_stats_by_type(1);
+    printf("total allocated: %d\ntotal free: %d\n", allocated, not_allocated);
+    void* sbrk_pointer = sbrk(0);
+    printf("sbrk pointer and allocated + free difference: %ld\n", (long) (sbrk_pointer - (allocated + not_allocated)));
 }

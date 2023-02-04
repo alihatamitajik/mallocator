@@ -62,7 +62,7 @@ struct AlgorithmWrapper
     &ff_malloc, 
     &ff_realloc, 
     &ff_free,
-    NULL, 
+    &ff_show_stats, 
     &ff_set_maximum,
     &ff_set_minimum
 };

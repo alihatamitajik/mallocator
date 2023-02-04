@@ -2,6 +2,7 @@
 #include <string.h>
 #include <limits.h>
 #include "myalloc.h"
+#include <sys/resource.h>
 
 
 TEST(BuddyMallocTest, ShouldAllocate)
@@ -29,12 +30,18 @@ TEST(BuddyMallocTest, ShouldSplitWhenBigger)
 
 TEST(BuddyMallocTest, ShouldNullWhenCant)
 {
-    // void* a;
-    // // Allocate 100GB which is not available
-    // for (size_t i = 0; i < 1000; i++)
-    // {
-    //     a = bud_malloc(100000000, 0);
-    // }
+    struct rlimit lim;
+
+    lim.rlim_cur = 0x800000;
+    lim.rlim_max = 0x800000;
+
+    // set limit to 8MBs
+    ASSERT_EQ(0, setrlimit(RLIMIT_DATA, &lim));
+    // we should make sure rounding up does not exceed the limit
+    void *a = bud_malloc(2000, 0);
+    void *b = bud_malloc(0x400000, 0);
+    ASSERT_EQ(b, (void *) NULL);
+    ASSERT_FALSE(a == NULL); 
 }
 
 TEST(BuddyMallocTest, ShouldFill)
@@ -64,7 +71,17 @@ TEST(BuddyFreeTest, ShouldCoalesceWhenFree)
 
 TEST(BuddyReallocTest, ShouldNullIfCant)
 {
-    // TODO: sbrk does not return -1 and program gets killed :)
+    struct rlimit lim;
+
+    lim.rlim_cur = 0x800000;
+    lim.rlim_max = 0x800000;
+
+    // set limit to 8MBs
+    ASSERT_EQ(0, setrlimit(RLIMIT_DATA, &lim));
+    // we should make sure rounding up does not exceed the limit
+    void *a = bud_malloc(2000, 0);
+    void *b = bud_realloc(a, 0x400000, 0);
+    ASSERT_EQ(b, (void *) NULL);
 }
 
 TEST(BuddyReallocTest, ShouldFreeWhenZeroSize)
@@ -135,12 +152,18 @@ TEST(FirstfitMallocTest, ShouldSplitWhenBigger)
 
 TEST(FirstfitMallocTest, ShouldNullWhenCant)
 {
-    // void* a;
-    // // Allocate 100GB which is not available
-    // for (size_t i = 0; i < 1000; i++)
-    // {
-    //     a = ff_malloc(100000000, 0);
-    // }
+    struct rlimit lim;
+
+    lim.rlim_cur = 0x800000;
+    lim.rlim_max = 0x800000;
+
+    // set limit to 8MBs
+    ASSERT_EQ(0, setrlimit(RLIMIT_DATA, &lim));
+    // we should make sure rounding up does not exceed the limit
+    void *a = ff_malloc(2000, 0);
+    void *b = ff_malloc(0x800000, 0);
+    ASSERT_EQ(b, (void *) NULL);
+    ASSERT_FALSE(a == NULL); 
 }
 
 TEST(FirstfitMallocTest, ShouldFill)
@@ -170,7 +193,17 @@ TEST(FirstfitFreeTest, ShouldCoalesceWhenFree)
 
 TEST(FirstfitReallocTest, ShouldNullIfCant)
 {
-    // TODO: sbrk does not return -1 and program gets killed :)
+    struct rlimit lim;
+
+    lim.rlim_cur = 0x800000;
+    lim.rlim_max = 0x800000;
+
+    // set limit to 8MBs
+    ASSERT_EQ(0, setrlimit(RLIMIT_DATA, &lim));
+    // we should make sure rounding up does not exceed the limit
+    void *a = ff_malloc(2000, 0);
+    void *b = ff_realloc(a, 0x800000, 0);
+    ASSERT_EQ(b, (void *) NULL);
 }
 
 TEST(FirstfitReallocTest, ShouldFreeWhenZeroSize)
