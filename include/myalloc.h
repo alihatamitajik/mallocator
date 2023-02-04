@@ -96,7 +96,7 @@ int set_algorithm(const char *algorithm)
     } else if (strcasecmp(algorithm, "buddy") == 0)
     {
         alg = {
-            1, 
+            2, 
             &bud_malloc, 
             &bud_realloc, 
             &bud_free, 

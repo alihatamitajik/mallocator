@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 
-#define BLOCK_SIZE 48
+#define BUD_BLOCK_SIZE 48
 
 #include <stdlib.h>
 #include <stdint.h>
