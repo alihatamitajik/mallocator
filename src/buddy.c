@@ -400,11 +400,44 @@ void bud_free(void* ptr)
     }
 }
 
-void bud_show_stats()
-{
-
+void bud_show_stats(){
+    unsigned allocated = bud_show_stats_by_type(0);
+    unsigned not_allocated = bud_show_stats_by_type(1);
+    printf("total allocated: %d\ntotal free: %d\n", allocated, not_allocated);
+    void* sbrk_pointer = sbrk(0);
+    printf("sbrk pointer and allocated + free difference: %u\n", sbrk_pointer - (allocated + not_allocated));
 }
 
+int bud_show_stats_by_type(int is_free){
+
+    bud_meta first = head;
+    if (head == NULL){
+        return 0;
+    }
+    bud_meta temp = head->next;
+    unsigned total_size = 0;
+
+    if(is_free){
+        printf("showing free blocks:\n");
+    }else{
+        printf("showing allocated blocks:\n");
+    }
+
+    while (1){
+        if (first == NULL){
+            break;
+        }
+        if (temp->is_free == is_free){
+            printf("start_address: %10u, end_address: %10u, size: %10u\n", temp->ptr, temp->ptr + temp->size, temp->size);
+            total_size += temp->size;
+        }
+        if (temp->next == NULL){
+            break;
+        }
+        temp = temp->next;
+    }
+    return total_size;
+}
 
 int bud_set_minimum(int min)
 {

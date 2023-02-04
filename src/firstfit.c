@@ -364,3 +364,40 @@ int ff_set_maximum(int max)
     }
     return ff_max_limit;
 }
+
+void ff_show_stats(){
+    unsigned allocated = ff_show_stats_by_type(0);
+    unsigned not_allocated = ff_show_stats_by_type(1);
+    printf("total allocated: %d\ntotal free: %d\n", allocated, not_allocated);
+    void* sbrk_pointer = sbrk(0);
+    printf("sbrk pointer and allocated + free difference: %u\n", sbrk_pointer - (allocated + not_allocated));
+}
+
+int ff_show_stats_by_type(int is_free){
+
+    s_block_ptr first = (s_block_ptr) b_list.first;
+    s_block_ptr temp = (s_block_ptr) b_list.first;
+    
+    unsigned total_size = 0;
+
+    if(is_free){
+        printf("showing free blocks:\n");
+    }else{
+        printf("showing allocated blocks:\n");
+    }
+
+    while (1){
+        if (b_list.first == NULL){
+            break;
+        }
+        if (temp->is_free == is_free){
+            printf("start_address: %10u, end_address: %10u, size: %10u\n", temp->ptr, temp->ptr + temp->size, temp->size);
+            total_size += temp->size;
+        }
+        if (temp->next == NULL){
+            break;
+        }
+        temp = (s_block_ptr)(temp->next);
+    }
+    return total_size;
+}

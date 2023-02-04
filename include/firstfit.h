@@ -100,6 +100,8 @@ struct s_block {
     char data [0];
  };
 
+ void ff_show_stats();
+
 #ifdef __cplusplus
 }
 #endif
